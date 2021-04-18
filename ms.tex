@@ -1,0 +1,414 @@
+\documentclass{article}
+
+% if you need to pass options to natbib, use, e.g.:
+ \PassOptionsToPackage{numbers, compress}{natbib}
+% before loading nips_2017
+%
+% to avoid loading the natbib package, add option nonatbib:
+% \usepackage[nonatbib]{nips_2017}
+
+% Keep final for now to remove annoying line numbers.
+%\usepackage[final]{nips_2017}
+% Keep final for now to remove annoying line numbers.
+
+
+% to compile a camera-ready version, add the [final] option, e.g.:
+\usepackage[final]{nips_2017}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[UTF8]{ctex}
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{amsmath}
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{subfiles}
+\usepackage{xcolor}
+\usepackage{multirow}
+\usepackage{enumerate}
+\usepackage{subfiles}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{subfiles}
+
+
+% % Custom Commands:
+% \newcommand\blfootnote[1]{%
+%   \begingroup
+%   \renewcommand\thefootnote{}\footnote{#1}%
+%   \addtocounter{footnote}{-1}%
+%   \endgroup
+% }
+
+\newcommand\todo[1]{\textcolor{red}{[[#1]]}}
+\newcommand\mc[1]{\mathcal{#1}}
+\newcommand*\samethanks[1][\value{footnote}]{\footnotemark[#1]}
+%keys for memory and values. Can be changed if needed
+\newcommand{\kq}{q}
+\newcommand{\km}{k}
+\newcommand{\vq}{o}
+\newcommand{\vm}{m}
+\newcommand{\Wkq}{W_q}
+\newcommand{\Wkm}{W_k}
+\newcommand{\Wvq}{W_o}
+\newcommand{\Wvm}{W_m}
+\newcommand{\dmodel}{d_{\text{model}}}
+\newcommand{\dffn}{d_{\text{ffn}}}
+\newcommand{\dff}{d_{\text{ff}}}
+\newcommand{\mbf}[1]{\mathbf{#1}}
+%\newcommand{\kq}{{q}_k}
+%\newcommand{\km}{{m}_k}
+%\newcommand{\vq}{{q}_v}
+%\newcommand{\vm}{{m}_v}
+%\newcommand{\Wkq}{{W_q}_k}
+%\newcommand{\Wkm}{{W_m}_k}
+%\newcommand{\Wvq}{{W_q}_v}
+%\newcommand{\Wvm}{{W_m}_v}
+\newcommand\concat[3]{\left[#1 \parallel_#3 #2\right]}
+
+\title{Attention Is All You Need}
+
+% The \author macro works with any number of authors. There are two
+% commands used to separate the names and addresses of multiple
+% authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to
+% break the lines. Using \AND forces a line break at that point. So,
+% if LaTeX puts 3 of 4 authors names on the first line, and the last
+% on the second line, try using \AND instead of \And before the third
+% author name.
+\author{
+  \AND
+  Ashish Vaswani\thanks{都是一样的贡献。这里的顺序是随机排列的。Jakob提出了用自我关注取代RNN，并开始努力评估这个想法。
+  Ashish和Illia一起设计并实现了第一个Transformer模型，并参与了这项工作的各个方面。Noam提出了缩放点积注意力、多头注意力和无参数位置表示法，并成为几乎每一个细节都参与其中的另一个人。Niki在我们的原始代码库和tensor2tensor中设计、实现、调整和评估了无数的模型变体。Llion也尝试了新的模型变体，负责我们最初的代码库，以及高效的推理和可视化。Lukasz和Aidan花了无数个漫长的日子来设计和实现tensor2tensor的各个部分，取代了我们早期的代码库，极大地改善了结果，并大规模地加速了我们的研究。
+}\\
+  Google Brain\\
+  \texttt{avaswani@google.com}\\
+  \And
+  Noam Shazeer\footnotemark[1]\\
+  Google Brain\\
+  \texttt{noam@google.com}\\
+  \And
+  Niki Parmar\footnotemark[1]\\
+  Google Research\\
+  \texttt{nikip@google.com}\\  
+  \And
+  Jakob Uszkoreit\footnotemark[1]\\
+  Google Research\\
+  \texttt{usz@google.com}\\
+  \And  
+  Llion Jones\footnotemark[1]\\
+  Google Research\\
+  \texttt{llion@google.com}\\   
+  \And
+  Aidan N. Gomez\footnotemark[1] \hspace{1.7mm}\thanks{在谷歌大脑时进行的工作}\\
+  University of Toronto\\
+  \texttt{aidan@cs.toronto.edu}
+  \And
+  {\L}ukasz Kaiser\footnotemark[1]\\
+  Google Brain\\
+  \texttt{lukaszkaiser@google.com}\\
+  \And
+  Illia Polosukhin\footnotemark[1]\hspace{1.7mm} \thanks{在谷歌研究部时进行的工作}\\
+  \texttt{illia.polosukhin@gmail.com}\\  
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+主流的序列转换模型是基于复杂的循环或卷积神经网络，包括一个编码器和一个解码器。性能最好的模型还通过注意机制连接编码器和解码器。我们提出了一种新的简单的网络架构——Transformer，完全基于注意力机制，完全不需要循环或卷积神经网络。在两个机器翻译任务上的实验表明，这些模型在质量上更胜一筹，同时可并行性更强，所需的训练时间也大大减少。我们的模型在WMT 2014英译德任务上达到了28.4 BLEU，比现有的最佳结果（包括组合模型）提高了2 BLEU以上。在WMT 2014英译法翻译任务上，我们的模型在8个GPU上训练3.5天后（这是之前的最佳模型的训练成本的一小部分），取得了一个新的单模型最先进的BLEU得分41.8。我们通过将Transformer成功地应用到英语成分句法分析（Constituency Parsing）中，表明它能很好地泛化到其他任务中，无论是在大量的还是有限的训练数据下。
+% \blfootnote{Code available at \url{https://github.com/tensorflow/tensor2tensor}}
+
+%TODO(noam): update results for new models.
+
+%llion@: FAIR's paper seems to concentrate solely on the convolutional aspect of their model and have the attention as an after thought almost, this gives us a good opportunity to differentiate ourselves from their paper.
+
+%We are simpler in a number of ways and should have the simplicity as a big selling point:
+%\begin{itemize}
+%\item No convolutions
+%\item No need for such careful initializations and %normalization.
+%\item Simpler non-lineararities, they use the gated linear %units.
+%\item Less layers?
+%\end{itemize}
+%One thing we do more is that we have self attention.
+%Another selling point is the increased interpretability as %shown with the visualizations. Which comes from the %simplicity and use of only attentions.
+\end{abstract}
+
+\section{Introduction}
+
+\input{introduction}
+
+\section{Background}
+
+\input{background}
+
+\section{Model Architecture}
+\input{model_architecture}
+ 
+\section{Why Self-Attention}
+\input{why_self_attention}
+
+\section{Training}
+\input{training}
+ 
+\section{Results} \label{sec:results}
+\input{results}
+
+\section{Conclusion}
+在这项工作中，我们提出了Transformer，这是第一个完全基于注意力的序列转换模型，用多头自注意力取代了编码器-解码器架构中最常用的循环神经网络。
+
+对于翻译任务，Transformer的训练速度可以显著快于基于循环层或卷积层的架构。在WMT 2014英译德和WMT 2014英译法两个翻译任务上，我们实现了新的技术状态。在前一项任务中，我们的最佳模型甚至优于所有之前已知的组合模型。%我们还通过对英语成分句法分析的实验，提供了我们模型更广泛的适用性的说明。
+
+我们对基于注意力的模型的未来感到兴奋，并计划将其应用于其他任务。我们计划将Transformer扩展到涉及文本以外的输入和输出模式的问题，并研究局部的、受限的注意力机制，以有效地处理图像、音频和视频等大型输入和输出。
+让生成过程的顺序性降低是我们的另一个研究目标。
+
+我们用来训练和评估我们的模型的代码可以在\url{https://github.com/tensorflow/tensor2tensor}上找到。
+
+\paragraph{Acknowledgements} 我们感谢Nal Kalchbrenner和Stephan Gouws的
+卓有成效的评论，更正和启发。
+
+\bibliographystyle{plain}
+%\bibliography{deeplearn}
+\begin{thebibliography}{10}
+
+\bibitem{layernorm2016}
+Jimmy~Lei Ba, Jamie~Ryan Kiros, and Geoffrey~E Hinton.
+\newblock Layer normalization.
+\newblock {\em arXiv preprint arXiv:1607.06450}, 2016.
+
+\bibitem{bahdanau2014neural}
+Dzmitry Bahdanau, Kyunghyun Cho, and Yoshua Bengio.
+\newblock Neural machine translation by jointly learning to align and
+  translate.
+\newblock {\em CoRR}, abs/1409.0473, 2014.
+
+\bibitem{DBLP:journals/corr/BritzGLL17}
+Denny Britz, Anna Goldie, Minh{-}Thang Luong, and Quoc~V. Le.
+\newblock Massive exploration of neural machine translation architectures.
+\newblock {\em CoRR}, abs/1703.03906, 2017.
+
+\bibitem{cheng2016long}
+Jianpeng Cheng, Li~Dong, and Mirella Lapata.
+\newblock Long short-term memory-networks for machine reading.
+\newblock {\em arXiv preprint arXiv:1601.06733}, 2016.
+
+\bibitem{cho2014learning}
+Kyunghyun Cho, Bart van Merrienboer, Caglar Gulcehre, Fethi Bougares, Holger
+  Schwenk, and Yoshua Bengio.
+\newblock Learning phrase representations using rnn encoder-decoder for
+  statistical machine translation.
+\newblock {\em CoRR}, abs/1406.1078, 2014.
+
+\bibitem{xception2016}
+Francois Chollet.
+\newblock Xception: Deep learning with depthwise separable convolutions.
+\newblock {\em arXiv preprint arXiv:1610.02357}, 2016.
+
+\bibitem{gruEval14}
+Junyoung Chung, {\c{C}}aglar G{\"{u}}l{\c{c}}ehre, Kyunghyun Cho, and Yoshua
+  Bengio.
+\newblock Empirical evaluation of gated recurrent neural networks on sequence
+  modeling.
+\newblock {\em CoRR}, abs/1412.3555, 2014.
+
+\bibitem{dyer-rnng:16}
+Chris Dyer, Adhiguna Kuncoro, Miguel Ballesteros, and Noah~A. Smith.
+\newblock Recurrent neural network grammars.
+\newblock In {\em Proc. of NAACL}, 2016.
+
+\bibitem{JonasFaceNet2017}
+Jonas Gehring, Michael Auli, David Grangier, Denis Yarats, and Yann~N. Dauphin.
+\newblock Convolutional sequence to sequence learning.
+\newblock {\em arXiv preprint arXiv:1705.03122v2}, 2017.
+
+\bibitem{graves2013generating}
+Alex Graves.
+\newblock Generating sequences with recurrent neural networks.
+\newblock {\em arXiv preprint arXiv:1308.0850}, 2013.
+
+\bibitem{he2016deep}
+Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun.
+\newblock Deep residual learning for image recognition.
+\newblock In {\em Proceedings of the IEEE Conference on Computer Vision and
+  Pattern Recognition}, pages 770--778, 2016.
+
+\bibitem{hochreiter2001gradient}
+Sepp Hochreiter, Yoshua Bengio, Paolo Frasconi, and J{\"u}rgen Schmidhuber.
+\newblock Gradient flow in recurrent nets: the difficulty of learning long-term
+  dependencies, 2001.
+
+\bibitem{hochreiter1997}
+Sepp Hochreiter and J{\"u}rgen Schmidhuber.
+\newblock Long short-term memory.
+\newblock {\em Neural computation}, 9(8):1735--1780, 1997.
+
+\bibitem{huang-harper:2009:EMNLP}
+Zhongqiang Huang and Mary Harper.
+\newblock Self-training {PCFG} grammars with latent annotations across
+  languages.
+\newblock In {\em Proceedings of the 2009 Conference on Empirical Methods in
+  Natural Language Processing}, pages 832--841. ACL, August 2009.
+
+\bibitem{jozefowicz2016exploring}
+Rafal Jozefowicz, Oriol Vinyals, Mike Schuster, Noam Shazeer, and Yonghui Wu.
+\newblock Exploring the limits of language modeling.
+\newblock {\em arXiv preprint arXiv:1602.02410}, 2016.
+
+\bibitem{extendedngpu}
+{\L}ukasz Kaiser and Samy Bengio.
+\newblock Can active memory replace attention?
+\newblock In {\em Advances in Neural Information Processing Systems, ({NIPS})},
+  2016.
+
+\bibitem{neural_gpu}
+\L{}ukasz Kaiser and Ilya Sutskever.
+\newblock Neural {GPU}s learn algorithms.
+\newblock In {\em International Conference on Learning Representations
+  ({ICLR})}, 2016.
+
+\bibitem{NalBytenet2017}
+Nal Kalchbrenner, Lasse Espeholt, Karen Simonyan, Aaron van~den Oord, Alex
+  Graves, and Koray Kavukcuoglu.
+\newblock Neural machine translation in linear time.
+\newblock {\em arXiv preprint arXiv:1610.10099v2}, 2017.
+
+\bibitem{structuredAttentionNetworks}
+Yoon Kim, Carl Denton, Luong Hoang, and Alexander~M. Rush.
+\newblock Structured attention networks.
+\newblock In {\em International Conference on Learning Representations}, 2017.
+
+\bibitem{kingma2014adam}
+Diederik Kingma and Jimmy Ba.
+\newblock Adam: A method for stochastic optimization.
+\newblock In {\em ICLR}, 2015.
+
+\bibitem{Kuchaiev2017Factorization}
+Oleksii Kuchaiev and Boris Ginsburg.
+\newblock Factorization tricks for {LSTM} networks.
+\newblock {\em arXiv preprint arXiv:1703.10722}, 2017.
+
+\bibitem{lin2017structured}
+Zhouhan Lin, Minwei Feng, Cicero Nogueira~dos Santos, Mo~Yu, Bing Xiang, Bowen
+  Zhou, and Yoshua Bengio.
+\newblock A structured self-attentive sentence embedding.
+\newblock {\em arXiv preprint arXiv:1703.03130}, 2017.
+
+\bibitem{multiseq2seq}
+Minh-Thang Luong, Quoc~V. Le, Ilya Sutskever, Oriol Vinyals, and Lukasz Kaiser.
+\newblock Multi-task sequence to sequence learning.
+\newblock {\em arXiv preprint arXiv:1511.06114}, 2015.
+
+\bibitem{luong2015effective}
+Minh-Thang Luong, Hieu Pham, and Christopher~D Manning.
+\newblock Effective approaches to attention-based neural machine translation.
+\newblock {\em arXiv preprint arXiv:1508.04025}, 2015.
+
+\bibitem{marcus1993building}
+Mitchell~P Marcus, Mary~Ann Marcinkiewicz, and Beatrice Santorini.
+\newblock Building a large annotated corpus of english: The penn treebank.
+\newblock {\em Computational linguistics}, 19(2):313--330, 1993.
+
+\bibitem{mcclosky-etAl:2006:NAACL}
+David McClosky, Eugene Charniak, and Mark Johnson.
+\newblock Effective self-training for parsing.
+\newblock In {\em Proceedings of the Human Language Technology Conference of
+  the NAACL, Main Conference}, pages 152--159. ACL, June 2006.
+
+\bibitem{decomposableAttnModel}
+Ankur Parikh, Oscar Täckström, Dipanjan Das, and Jakob Uszkoreit.
+\newblock A decomposable attention model.
+\newblock In {\em Empirical Methods in Natural Language Processing}, 2016.
+
+\bibitem{paulus2017deep}
+Romain Paulus, Caiming Xiong, and Richard Socher.
+\newblock A deep reinforced model for abstractive summarization.
+\newblock {\em arXiv preprint arXiv:1705.04304}, 2017.
+
+\bibitem{petrov-EtAl:2006:ACL}
+Slav Petrov, Leon Barrett, Romain Thibaux, and Dan Klein.
+\newblock Learning accurate, compact, and interpretable tree annotation.
+\newblock In {\em Proceedings of the 21st International Conference on
+  Computational Linguistics and 44th Annual Meeting of the ACL}, pages
+  433--440. ACL, July 2006.
+
+\bibitem{press2016using}
+Ofir Press and Lior Wolf.
+\newblock Using the output embedding to improve language models.
+\newblock {\em arXiv preprint arXiv:1608.05859}, 2016.
+
+\bibitem{sennrich2015neural}
+Rico Sennrich, Barry Haddow, and Alexandra Birch.
+\newblock Neural machine translation of rare words with subword units.
+\newblock {\em arXiv preprint arXiv:1508.07909}, 2015.
+
+\bibitem{shazeer2017outrageously}
+Noam Shazeer, Azalia Mirhoseini, Krzysztof Maziarz, Andy Davis, Quoc Le,
+  Geoffrey Hinton, and Jeff Dean.
+\newblock Outrageously large neural networks: The sparsely-gated
+  mixture-of-experts layer.
+\newblock {\em arXiv preprint arXiv:1701.06538}, 2017.
+
+\bibitem{srivastava2014dropout}
+Nitish Srivastava, Geoffrey~E Hinton, Alex Krizhevsky, Ilya Sutskever, and
+  Ruslan Salakhutdinov.
+\newblock Dropout: a simple way to prevent neural networks from overfitting.
+\newblock {\em Journal of Machine Learning Research}, 15(1):1929--1958, 2014.
+
+\bibitem{sukhbaatar2015}
+Sainbayar Sukhbaatar, Arthur Szlam, Jason Weston, and Rob Fergus.
+\newblock End-to-end memory networks.
+\newblock In C.~Cortes, N.~D. Lawrence, D.~D. Lee, M.~Sugiyama, and R.~Garnett,
+  editors, {\em Advances in Neural Information Processing Systems 28}, pages
+  2440--2448. Curran Associates, Inc., 2015.
+
+\bibitem{sutskever14}
+Ilya Sutskever, Oriol Vinyals, and Quoc~VV Le.
+\newblock Sequence to sequence learning with neural networks.
+\newblock In {\em Advances in Neural Information Processing Systems}, pages
+  3104--3112, 2014.
+
+\bibitem{DBLP:journals/corr/SzegedyVISW15}
+Christian Szegedy, Vincent Vanhoucke, Sergey Ioffe, Jonathon Shlens, and
+  Zbigniew Wojna.
+\newblock Rethinking the inception architecture for computer vision.
+\newblock {\em CoRR}, abs/1512.00567, 2015.
+
+\bibitem{KVparse15}
+{Vinyals {\&} Kaiser}, Koo, Petrov, Sutskever, and Hinton.
+\newblock Grammar as a foreign language.
+\newblock In {\em Advances in Neural Information Processing Systems}, 2015.
+
+\bibitem{wu2016google}
+Yonghui Wu, Mike Schuster, Zhifeng Chen, Quoc~V Le, Mohammad Norouzi, Wolfgang
+  Macherey, Maxim Krikun, Yuan Cao, Qin Gao, Klaus Macherey, et~al.
+\newblock Google's neural machine translation system: Bridging the gap between
+  human and machine translation.
+\newblock {\em arXiv preprint arXiv:1609.08144}, 2016.
+
+\bibitem{DBLP:journals/corr/ZhouCWLX16}
+Jie Zhou, Ying Cao, Xuguang Wang, Peng Li, and Wei Xu.
+\newblock Deep recurrent models with fast-forward connections for neural
+  machine translation.
+\newblock {\em CoRR}, abs/1606.04199, 2016.
+
+\bibitem{zhu-EtAl:2013:ACL}
+Muhua Zhu, Yue Zhang, Wenliang Chen, Min Zhang, and Jingbo Zhu.
+\newblock Fast and accurate shift-reduce constituent parsing.
+\newblock In {\em Proceedings of the 51st Annual Meeting of the ACL (Volume 1:
+  Long Papers)}, pages 434--443. ACL, August 2013.
+
+\end{thebibliography}
+%\newpage
+\input{visualizations}
+%\appendix
+%\newpage
+%\input{parameter_attention}
+
+%\input{sqrt_d_trick}
+
+\end{document}
