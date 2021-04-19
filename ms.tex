@@ -139,27 +139,27 @@
 %Another selling point is the increased interpretability as %shown with the visualizations. Which comes from the %simplicity and use of only attentions.
 \end{abstract}
 
-\section{Introduction}
+\section{序言}
 
 \input{introduction}
 
-\section{Background}
+\section{背景}
 
 \input{background}
 
-\section{Model Architecture}
+\section{模型结构}
 \input{model_architecture}
  
-\section{Why Self-Attention}
+\section{为什么是Self-Attention}
 \input{why_self_attention}
 
-\section{Training}
+\section{训练}
 \input{training}
  
-\section{Results} \label{sec:results}
+\section{结果} \label{sec:results}
 \input{results}
 
-\section{Conclusion}
+\section{结束语}
 在这项工作中，我们提出了Transformer，这是第一个完全基于注意力的序列转换模型，用多头自注意力取代了编码器-解码器架构中最常用的循环神经网络。
 
 对于翻译任务，Transformer的训练速度可以显著快于基于循环层或卷积层的架构。在WMT 2014英译德和WMT 2014英译法两个翻译任务上，我们实现了新的技术状态。在前一项任务中，我们的最佳模型甚至优于所有之前已知的组合模型。%我们还通过对英语成分句法分析的实验，提供了我们模型更广泛的适用性的说明。
@@ -167,10 +167,9 @@
 我们对基于注意力的模型的未来感到兴奋，并计划将其应用于其他任务。我们计划将Transformer扩展到涉及文本以外的输入和输出模式的问题，并研究局部的、受限的注意力机制，以有效地处理图像、音频和视频等大型输入和输出。
 让生成过程的顺序性降低是我们的另一个研究目标。
 
-我们用来训练和评估我们的模型的代码可以在\url{https://github.com/tensorflow/tensor2tensor}上找到。
+用来训练和评估我们的模型的代码可以在\url{https://github.com/tensorflow/tensor2tensor}上找到。
 
-\paragraph{Acknowledgements} 我们感谢Nal Kalchbrenner和Stephan Gouws的
-卓有成效的评论，更正和启发。
+\paragraph{鸣谢} 我们感谢来自Nal Kalchbrenner和Stephan Gouws的卓有成效的评论，更正和启发。
 
 \bibliographystyle{plain}
 %\bibliography{deeplearn}
