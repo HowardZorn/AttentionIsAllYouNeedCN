@@ -1,17 +1,25 @@
 %We focus on the general task of mapping one variable-length sequence of symbol representations ${x_1, ..., x_n} \in \mathbb{R}^d$ to another sequence of the same length ${y_1, ..., y_n} \in \mathbb{R}^d$. \marginpar{should we use this notation? alternatively we can just say "d-dimensional vectors"}
 
-In this section we compare various aspects of self-attention layers to the recurrent and convolutional layers commonly used for mapping one variable-length sequence of symbol representations $(x_1, ..., x_n)$ to another sequence of equal length $(z_1, ..., z_n)$, with $x_i, z_i \in \mathbb{R}^d$, such as a hidden layer in a typical sequence transduction encoder or decoder. Motivating our use of self-attention we consider three desiderata.
+%In this section we compare various aspects of self-attention layers to the recurrent and convolutional layers commonly used for mapping one variable-length sequence of symbol representations $(x_1, ..., x_n)$ to another sequence of equal length $(z_1, ..., z_n)$, with $x_i, z_i \in \mathbb{R}^d$, such as a hidden layer in a typical sequence transduction encoder or decoder. Motivating our use of self-attention we consider three desiderata.
 
-One is the total computational complexity per layer.
-Another is the amount of computation that can be parallelized, as measured by the minimum number of sequential operations required.
+在本小节，我们将自我注意层的各个方面与通常用于将一个可变长度的符号表示序列$(x_1, ..., x_n)$映射到另一个等长的序列$(z_1, ..., z_n)$的RNN和CNN层进行比较，其中$x_i, z_i \in \mathbb{R}^d$，是典型的序列转换编码器或解码器中的的隐藏层。我们使用自注意力机制的动机是有下面三个方面的好处。
 
-The third is the path length between long-range dependencies in the network. Learning long-range dependencies is a key challenge in many sequence transduction tasks. One key factor affecting the ability to learn such dependencies is the length of the paths forward and backward signals have to traverse in the network. The shorter these paths between any combination of positions in the input and output sequences, the easier it is to learn long-range dependencies \citep{hochreiter2001gradient}. Hence we also compare the maximum path length between any two input and output positions in networks composed of the different layer types.
+% One is the total computational complexity per layer.
+% Another is the amount of computation that can be parallelized, as measured by the minimum number of sequential operations required.
+
+一个是每层的总计算复杂性。
+另一个是可以并行化的计算量，以所需的最小顺序操作数量来衡量。
+
+
+%The third is the path length between long-range dependencies in the network. Learning long-range dependencies is a key challenge in many sequence transduction tasks. One key factor affecting the ability to learn such dependencies is the length of the paths forward and backward signals have to traverse in the network. The shorter these paths between any combination of positions in the input and output sequences, the easier it is to learn long-range dependencies \citep{hochreiter2001gradient}. Hence we also compare the maximum path length between any two input and output positions in networks composed of the different layer types.
+
+第三是网络中长距离依赖关系之间的路径长度。学习长距离的依赖关系是许多序列转换任务中的一个关键挑战。影响学习这种依赖关系能力的一个关键因素是前向和后向信号在网络中必须穿越的路径的长度。在输入和输出序列的任何位置组合之间的这些路径越短，就越容易学习长距离的依赖关系。因此，我们还比较了由不同层类型组成的网络中任何两个输入和输出位置之间的最大路径长度。
 
 %\subsection{Computational Performance and Path Lengths}
 
 \begin{table}[t]
 \caption{
-  Maximum path lengths, per-layer complexity and minimum number of sequential operations for different layer types. $n$ is the sequence length, $d$ is the representation dimension, $k$ is the kernel size of convolutions and $r$ the size of the neighborhood in restricted self-attention.}
+  不同层类型的最大路径长度、每层复杂性和最小顺序操作数量。$n$是序列长度，$d$是表示维度，$k$是卷积的核大小，$r$是限制性自注意中的邻域大小。}
   %Attention models are quite efficient for cross-positional communications when sequence length is smaller than channel depth.
 \label{tab:op_complexities}
 \begin{center}
@@ -20,15 +28,16 @@ The third is the path length between long-range dependencies in the network. Lea
 
 \begin{tabular}{lccc}
 \toprule
-Layer Type & Complexity per Layer & Sequential & Maximum Path Length  \\
-           &             & Operations &   \\
+% Layer Type & Complexity per Layer & Sequential & Maximum Path Length  \\
+%            &             & Operations &   \\
+层的类型 & 层的复杂度 & 顺序操作数量 &  最长路径长度  \\
 \hline
-\rule{0pt}{2.0ex}Self-Attention & $O(n^2 \cdot d)$ & $O(1)$ & $O(1)$ \\
-Recurrent & $O(n \cdot d^2)$ & $O(n)$ & $O(n)$ \\
+\rule{0pt}{2.0ex}自注意 & $O(n^2 \cdot d)$ & $O(1)$ & $O(1)$ \\
+循环神经网络 & $O(n \cdot d^2)$ & $O(n)$ & $O(n)$ \\
 
-Convolutional & $O(k \cdot n \cdot d^2)$ & $O(1)$ & $O(log_k(n))$ \\
+卷积 & $O(k \cdot n \cdot d^2)$ & $O(1)$ & $O(log_k(n))$ \\
 %\cmidrule
-Self-Attention (restricted)& $O(r \cdot n \cdot d)$ & $O(1)$ & $O(n/r)$ \\
+自注意力(受限的)& $O(r \cdot n \cdot d)$ & $O(1)$ & $O(n/r)$ \\
 
 %Convolutional (separable) & $O(k \cdot n \cdot d + n \cdot d^2)$ & $O(1)$ & $O(log_k(n))$ \\
 
@@ -81,12 +90,21 @@ Self-Attention (restricted)& $O(r \cdot n \cdot d)$ & $O(1)$ & $O(n/r)$ \\
 
 %The receptive field size of a layer is the number of different input representations that can influence any particular output representation. Recurrent layers and self-attention layers have a full receptive field equal to the sequence length $n$. Convolutional layers have a limited receptive field equal to their kernel width $k$, which is generally chosen to be small in order to limit computational cost.
 
-As noted in Table \ref{tab:op_complexities}, a self-attention layer connects all positions with a constant number of sequentially executed operations, whereas a recurrent layer requires $O(n)$ sequential operations.
-In terms of computational complexity, self-attention layers are faster than recurrent layers when the sequence length $n$ is smaller than the representation dimensionality $d$, which is most often the case with sentence representations used by state-of-the-art models in machine translations, such as word-piece \citep{wu2016google} and byte-pair \citep{sennrich2015neural} representations.
-To improve computational performance for tasks involving very long sequences, self-attention could be restricted to considering only a neighborhood of size $r$ in the input sequence centered around the respective output position. This would increase the maximum path length to $O(n/r)$. We plan to investigate this approach further in future work.
+%As noted in Table \ref{tab:op_complexities}, a self-attention layer connects all positions with a constant number of sequentially executed operations, whereas a recurrent layer requires $O(n)$ sequential operations.
 
-A single convolutional layer with kernel width $k < n$ does not connect all pairs of input and output positions. Doing so requires a stack of $O(n/k)$ convolutional layers in the case of contiguous kernels, or $O(log_k(n))$ in the case of dilated convolutions \citep{NalBytenet2017}, increasing the length of the longest paths between any two positions in the network.
-Convolutional layers are generally more expensive than recurrent layers, by a factor of $k$. Separable convolutions \citep{xception2016}, however, decrease the complexity considerably, to $O(k \cdot n \cdot d + n \cdot d^2)$. Even with $k=n$, however, the complexity of a separable convolution is equal to the combination of a self-attention layer and a point-wise feed-forward layer, the approach we take in our model.
+如表\ref{tab:op_complexities}所示，一个自注意力层只需常数顺序执行的操作数量就可以连接所有位置，同时一个RNN层需要$O(n)$的顺序操作。
+
+%In terms of computational complexity, self-attention layers are faster than recurrent layers when the sequence length $n$ is smaller than the representation dimensionality $d$, which is most often the case with sentence representations used by state-of-the-art models in machine translations, such as word-piece \citep{wu2016google} and byte-pair \citep{sennrich2015neural} representations.
+%To improve computational performance for tasks involving very long sequences, self-attention could be restricted to considering only a neighborhood of size $r$ in the input sequence centered around the respective output position. This would increase the maximum path length to $O(n/r)$. We plan to investigate this approach further in future work.
+
+就计算复杂度而言，当序列长度$n$小于表示维度$d$时，自我关注层比递归层更快，这在机器翻译中最先进的模型所使用的句子表示中是最常见的，如词片\citep{wu2016google}和字节对\citep{sennrich2015neural}表示。
+为了提高涉及超长序列的任务的计算性能，可以限制自我注意，只考虑输入序列中以各自输出位置为中心的大小为$r$的邻域。这将使最大路径长度增加到$O(n/r)$。我们计划在未来的工作中进一步研究这种方法。
+
+%A single convolutional layer with kernel width $k < n$ does not connect all pairs of input and output positions. Doing so requires a stack of $O(n/k)$ convolutional layers in the case of contiguous kernels, or $O(log_k(n))$ in the case of dilated convolutions \citep{NalBytenet2017}, increasing the length of the longest paths between any two positions in the network.
+%Convolutional layers are generally more expensive than recurrent layers, by a factor of $k$. Separable convolutions \citep{xception2016}, however, decrease the complexity considerably, to $O(k \cdot n \cdot d + n \cdot d^2)$. Even with $k=n$, however, the complexity of a separable convolution is equal to the combination of a self-attention layer and a point-wise feed-forward layer, the approach we take in our model.
+
+卷积核宽度为$k<n$的单一卷积层并不能连接所有的输入和输出位置对。这样做需要堆叠$O(n/k)$的卷积层（在连续核的情况下），或者$O(log_k(n))$在空洞卷积（扩张卷积）\citep{NalBytenet2017}的情况下，增加网络中任何两个位置之间最长路径的长度。
+CNN层通常比RNN层更昂贵，代价为$k$的系数。然而，可分离卷积层的复杂度大大降低，为$O(k\cdot n\cdot d + n\cdot d^2)$。然而，即使$k=n$，可分离卷积的复杂度也等于自注意力层和逐点前馈层（FFN）的组合，也就是我们模型中采取的方法。
 
 %\subsection{Unfiltered Bottleneck Argument}
 
@@ -94,5 +112,6 @@ Convolutional layers are generally more expensive than recurrent layers, by a fa
 
 %There is a second argument for self-attention layers which we call the unfiltered bottleneck argument.   In both recurrent and the convolutional layers, the information that position $i$ receives from the other positions is compressed to a vector of dimension $d$ before it ever can be filtered by the content $x_i$.  More precisely, we can express $y_i = F(i, x_i, G(i, \{x_{j \neq i}\}))$, where $G(i, \{x_{j \neq i}\})$ is a vector of dimension $d$.  Intuitively, we would expect that this would cause a large amount of irrelevant information to crowd out the relevant information.  Self-attention does not suffer from the unfiltered bottleneck problem, since the aggregation happens after filtering, and so, intuitively, we have the chance of transmitting lots of relevant information.
 
-As side benefit, self-attention could yield more interpretable models. We inspect attention distributions from our models and present and discuss examples in the appendix. Not only do individual attention heads clearly learn to perform different tasks, many appear to exhibit behavior related to the syntactic and semantic structure of the sentences.
+%As side benefit, self-attention could yield more interpretable models. We inspect attention distributions from our models and present and discuss examples in the appendix. Not only do individual attention heads clearly learn to perform different tasks, many appear to exhibit behavior related to the syntactic and semantic structure of the sentences.
 
+作为副作用，自注意力机制可以得到更多可解释的模型。我们从我们的模型中检查了注意力的分布，并在附录中提出和讨论了一些例子。不仅个别注意力头明显学会了执行不同的任务，许多头似乎表现出与句子的句法和语义结构有关的行为。
