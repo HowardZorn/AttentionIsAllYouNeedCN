@@ -1,4 +1,4 @@
-\subsection{Machine Translation}
+\subsection{机器翻译}
 \begin{table}[t]
 \begin{center}
 \caption{在英译德和英译法的newstest2014测试中，Transformer取得了比以前最先进的模型更好的BLEU分数，而培训成本却只有一小部分。}
@@ -41,7 +41,7 @@ Transformer (大) & \textbf{28.4} & \textbf{41.8} & & \multicolumn{2}{c}{$2.3\cd
 
 %On the WMT 2014 English-to-French translation task, our big model achieves a BLEU score of $41.0$, outperforming all of the previously published single models, at less than $1/4$ the training cost of the previous state-of-the-art model. The Transformer (big) model trained for English-to-French used dropout rate $P_{drop}=0.1$, instead of $0.3$.
 
-在WMT 2014的英译法任务中，我们的大模型取得了41.0美元的BLEU分数，超过了之前发布的所有单一模型，而训练成本还不到之前最先进模型的$1/4$。为英译法训练的Transformer（大）模型使用了dropout率$P_{drop}=0.1$，而不是$0.3$。
+在WMT 2014的英译法任务中，我们的大模型取得了$41.0$BLEU的分数，超过了之前发布的所有单一模型，而训练成本还不到之前最先进模型的$1/4$。为英译法训练的Transformer（大）模型使用了dropout率$P_{drop}=0.1$，而不是$0.3$。
 
 % For the base models, we used a single model obtained by averaging the last 5 checkpoints, which were written at 10-minute intervals.  For the big models, we averaged the last 20 checkpoints. We used beam search with a beam size of $4$ and length penalty $\alpha=0.6$ \citep{wu2016google}.  These hyperparameters were chosen after experimentation on the development set.  We set the maximum output length during inference to input length + $50$, but terminate early when possible \citep{wu2016google}.
 
