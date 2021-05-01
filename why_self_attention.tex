@@ -8,7 +8,7 @@
 % Another is the amount of computation that can be parallelized, as measured by the minimum number of sequential operations required.
 
 一个是每层的总计算复杂性。
-另一个是可以并行化的计算量，以所需的最小顺序操作数量来衡量。
+另一个是可以并行化的计算量，以所需的最小串行操作数量来衡量。
 
 
 %The third is the path length between long-range dependencies in the network. Learning long-range dependencies is a key challenge in many sequence transduction tasks. One key factor affecting the ability to learn such dependencies is the length of the paths forward and backward signals have to traverse in the network. The shorter these paths between any combination of positions in the input and output sequences, the easier it is to learn long-range dependencies \citep{hochreiter2001gradient}. Hence we also compare the maximum path length between any two input and output positions in networks composed of the different layer types.
@@ -19,7 +19,7 @@
 
 \begin{table}[t]
 \caption{
-  不同层类型的最大路径长度、每层复杂性和最小顺序操作数量。$n$是序列长度，$d$是表示维度，$k$是卷积的核大小，$r$是限制性自注意中的邻域大小。}
+  不同层类型的最大路径长度、每层复杂性和最小串行操作数量。$n$是序列长度，$d$是表示维度，$k$是卷积的核大小，$r$是限制性自注意中的邻域大小。}
   %Attention models are quite efficient for cross-positional communications when sequence length is smaller than channel depth.
 \label{tab:op_complexities}
 \begin{center}
@@ -30,7 +30,7 @@
 \toprule
 % Layer Type & Complexity per Layer & Sequential & Maximum Path Length  \\
 %            &             & Operations &   \\
-层的类型 & 层的复杂度 & 顺序操作数量 &  最长路径长度  \\
+层的类型 & 层的复杂度 & 串行操作数量 &  最长路径长度  \\
 \hline
 \rule{0pt}{2.0ex}自注意 & $O(n^2 \cdot d)$ & $O(1)$ & $O(1)$ \\
 循环神经网络 & $O(n \cdot d^2)$ & $O(n)$ & $O(n)$ \\
@@ -92,7 +92,7 @@
 
 %As noted in Table \ref{tab:op_complexities}, a self-attention layer connects all positions with a constant number of sequentially executed operations, whereas a recurrent layer requires $O(n)$ sequential operations.
 
-如表\ref{tab:op_complexities}所示，一个自注意力层只需常数顺序执行的操作数量就可以连接所有位置，同时一个RNN层需要$O(n)$的顺序操作。
+如表\ref{tab:op_complexities}所示，一个自注意力层只需常数串行执行的操作数量就可以连接所有位置，同时一个RNN层需要$O(n)$的串行操作。
 
 %In terms of computational complexity, self-attention layers are faster than recurrent layers when the sequence length $n$ is smaller than the representation dimensionality $d$, which is most often the case with sentence representations used by state-of-the-art models in machine translations, such as word-piece \citep{wu2016google} and byte-pair \citep{sennrich2015neural} representations.
 %To improve computational performance for tasks involving very long sequences, self-attention could be restricted to considering only a neighborhood of size $r$ in the input sequence centered around the respective output position. This would increase the maximum path length to $O(n/r)$. We plan to investigate this approach further in future work.

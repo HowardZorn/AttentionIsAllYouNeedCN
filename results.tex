@@ -1,7 +1,7 @@
 \subsection{机器翻译}
 \begin{table}[t]
 \begin{center}
-\caption{在英译德和英译法的newstest2014测试中，Transformer取得了比以前最先进的模型更好的BLEU分数，而培训成本却只有一小部分。}
+\caption{在英译德和英译法的newstest2014测试中，Transformer取得了比以前最先进的模型更好的BLEU分数，而培训成本却只有之前的一小部分。}
 \label{tab:wmt-results}
 \vspace{-2mm}
 %\scalebox{1.0}{
@@ -47,7 +47,7 @@ Transformer (大) & \textbf{28.4} & \textbf{41.8} & & \multicolumn{2}{c}{$2.3\cd
 
 对于基本模型，我们使用了通过平均最后5个检查点得到的单一模型，这些检查点是以10分钟的时间间隔写入的。对于大模型，我们对最后的20个检查点进行了平均。我们使用了beam search，beam大小为$4$，长度惩罚为$\alpha=0.6$ \citep{wu2016google}。这些超参数是在开发集上进行实验后选择的。 我们将推理过程中的最大输出长度设置为输入长度+$50$，但会在可能的情况下提前终止\citep{wu2016google}。
 
-表\ref{tab:wmt-results}总结了我们的结果，并将我们的翻译质量和训练成本与文献中的其他模型架构进行比较。 我们通过将训练时间、所使用的GPU数量和每个GPU的持续单精度浮点能力的估计值相乘来估计训练一个模型所使用的浮点运算的数量 \footnote{K80、K40、M40和P100分别为2.8、3.7、6.0和9.5 TFLOPS。}。
+表\ref{tab:wmt-results}总结了我们的结果，并将我们的翻译质量和训练成本与文献中的其他模型架构进行比较。 我们通过将训练时间、所使用的GPU数量和每个GPU的持续单精度浮点能力的估计值相乘来估计训练一个模型所使用的浮点运算的数量 \footnote{我们认定K80、K40、M40和P100分别为2.8、3.7、6.0和9.5 TFLOPS。}。
 %where we compare against the leading machine translation results in the literature. Even our smaller model, with number of parameters comparable to ConvS2S, outperforms all existing single models, and achieves results close to the best ensemble model.
 
 \subsection{模型变体}
@@ -95,9 +95,9 @@ base & 6 & 512 & 2048 & 8 & 64 & 64 & 0.1 & 0.1 & 100K & 4.92 & 25.8 & 65 \\
 & & & & & & & & 0.0 & & 4.67 & 25.3 &  \\
 & & & & & & & & 0.2 & & 5.47 & 25.7 &  \\
 \hline\rule{0pt}{2.0ex}
-(E) & & \multicolumn{7}{c}{positional embedding instead of sinusoids} & & 4.92 & 25.7 & \\
+(E) & & \multicolumn{7}{c}{位置嵌入，替换正弦波位置编码} & & 4.92 & 25.7 & \\
 \hline\rule{0pt}{2.0ex}
-big & 6 & 1024 & 4096 & 16 & & & 0.3 & & 300K & \textbf{4.33} & \textbf{26.4} & 213 \\
+大 & 6 & 1024 & 4096 & 16 & & & 0.3 & & 300K & \textbf{4.33} & \textbf{26.4} & 213 \\
 \hline
 \end{tabular}
 %}
@@ -109,7 +109,7 @@ big & 6 & 1024 & 4096 & 16 & & & 0.3 & & 300K & \textbf{4.33} & \textbf{26.4} & 
 
 %To evaluate the importance of different components of the Transformer, we varied our base model in different ways, measuring the change in performance on English-to-German translation on the development set, newstest2013. We used beam search as described in the previous section, but no checkpoint averaging.  We present these results in Table~\ref{tab:variations}.  
 
-为了评估Transformer不同组件的重要性，我们以不同的方式改变了我们的基础模型，在开发集newstest2013上测量英德翻译的性能变化。我们使用了上一节中描述的beam search，但没有使用检查点平均法。 我们在表~\ref{tab:variations}中介绍了这些结果。
+为了评估Transformer不同组件的重要性，我们以不同的方式改变了我们的基础模型，在开发集newstest2013上测试英德翻译的性能变化。我们使用了上一节中描述的beam search，但没有使用检查点平均法。 我们在表~\ref{tab:variations}中说明这些结果。
 
 %In Table~\ref{tab:variations} rows (A), we vary the number of attention heads and the attention key and value dimensions, keeping the amount of computation constant, as described in Section \ref{sec:multihead}. While single-head attention is 0.9 BLEU worse than the best setting, quality also drops off with too many heads.
 
@@ -117,7 +117,7 @@ big & 6 & 1024 & 4096 & 16 & & & 0.3 & & 300K & \textbf{4.33} & \textbf{26.4} & 
 
 %In Table~\ref{tab:variations} rows (B), we observe that reducing the attention key size $d_k$ hurts model quality. This suggests that determining compatibility is not easy and that a more sophisticated compatibility function than dot product may be beneficial. We further observe in rows (C) and (D) that, as expected, bigger models are better, and dropout is very helpful in avoiding over-fitting.  In row (E) we replace our sinusoidal positional encoding with learned positional embeddings \citep{JonasFaceNet2017}, and observe nearly identical results to the base model.
 
-在表~\ref{tab:variations}行(B)中，我们观察到，减少键(key)的维度大小$d_k$会伤害模型质量。这表明，确定相似性并不容易，比点乘更复杂的相似函数可能是有益的。我们在(C)和(D)行中进一步观察到，正如预期的那样，更大的模型更好，而且dropout对于避免过拟合非常有帮助。 在(E)行中，我们用可学习的位置嵌入代替我们的正弦波位置编码\citep{JonasFaceNet2017}，观察到的结果与基础模型几乎相同。
+在表~\ref{tab:variations}行(B)中，我们观察到，减少key的维度大小$d_k$会伤害模型质量。这表明，确定相似性并不容易，比点乘更复杂的相似函数可能是有益的。我们在(C)和(D)行中进一步观察到，正如预期的那样，更大的模型更好，而且dropout对于避免过拟合非常有帮助。 在(E)行中，我们用可学习的位置嵌入代替我们的正弦波位置编码\citep{JonasFaceNet2017}，观察到的结果与基础模型几乎相同。
 
 %To evaluate the importance of different components of the Transformer, we use our base model to ablate on a single hyperparameter at each time and measure the change in performance on English$\to$German translation. Our variations in Table~\ref{tab:variations} show that the number of attention layers and attention heads is the most important architecture hyperparamter However, the we do not see performance gains beyond 6 layers, suggesting that we either don't have enough data to train a large model or we need to turn up regularization. We leave this exploration for future work. Among our regularizers, attention dropout has the most significant impact on performance.
 
@@ -182,7 +182,7 @@ Dyer et al. (2016) \cite{dyer-rnng:16}
 
 %Our results in Table~\ref{tab:parsing-results} show that despite the lack of task-specific tuning our model performs surprisingly well, yielding better results than all previously reported models with the exception of the Recurrent Neural Network Grammar \cite{dyer-rnng:16}.
 
-表\ref{tab:parsing-results}中的结果显示，尽管缺乏特定任务的调整，我们的模型表现得出奇的好，产生的结果比以前报道的所有模型都要好，除了循环神经网络\cite{dyer-rnng:16}。
+表\ref{tab:parsing-results}中的结果显示，尽管缺乏对特定任务的调整，我们的模型表现得出奇的好，产生的结果比以前报道的所有模型都要好，除了循环神经网络\cite{dyer-rnng:16}。
 
 
 %In contrast to RNN sequence-to-sequence models \citep{KVparse15}, the Transformer outperforms the BerkeleyParser \cite{petrov-EtAl:2006:ACL} even when training only on the WSJ training set of 40K sentences.
