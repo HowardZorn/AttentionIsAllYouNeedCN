@@ -1,22 +1,22 @@
 % The goal of reducing sequential computation also forms the foundation of the Extended Neural GPU \citep{extendedngpu}, ByteNet \citep{NalBytenet2017} and ConvS2S \citep{JonasFaceNet2017}, all of which use convolutional neural networks as basic building block, computing hidden representations in parallel for all input and output positions. In these models, the number of operations required to relate signals from two arbitrary input or output positions grows in the distance between positions, linearly for ConvS2S and logarithmically for ByteNet. This makes it more difficult to learn dependencies between distant positions \citep{hochreiter2001gradient}. In the Transformer this is reduced to a constant number of operations, albeit at the cost of reduced effective resolution due to averaging attention-weighted positions, an effect we counteract with Multi-Head Attention as described in section~\ref{sec:attention}. 
 
-减少序列处理任务的计算量是一个很重要的问题，这也是Extended Neural GPU\citep{extendedngpu}、ByteNet\citep{NalBytenet2017}和ConvS2S\citep{JonasFaceNet2017}等网络的动机。上面提到的这些网络都以CNN为基础，并行计算所有输入和输出位置的隐藏表示。在这些模型中，将来自两个任意输入或输出位置的信号联系起来所需的操作数量随着位置之间的距离而增加，如ConvS2S呈线性增长，ByteNet呈现以对数形式增长。这使得学习两个遥远位置之间的依赖关系更加困难\citep{hochreiter2001gradient}。在Transformer中，需要的操作数将减少到常数级别——尽管平均化Attention加权的位置降低了有效的分辨能力，但如~\ref{sec:attention}部分所述，我们用多头注意力抵消了这种影响。 % TODO
+减少序列处理任务的计算量是一个很重要的问题，这也是Extended Neural GPU\citep{extendedngpu}、ByteNet\citep{NalBytenet2017}和ConvS2S\citep{JonasFaceNet2017}等网络的动机．上面提到的这些网络都以CNN为基础，并行计算所有输入和输出位置的隐藏表示．在这些模型中，将来自两个任意输入或输出位置的信号联系起来所需的操作数量随着位置之间的距离而增加，如ConvS2S呈线性增长，ByteNet呈现以对数形式增长．这使得学习两个遥远位置之间的依赖关系更加困难\citep{hochreiter2001gradient}．在Transformer中，需要的操作数将减少到常数级别——尽管平均化Attention加权的位置降低了有效的分辨能力，但如~\ref{sec:attention}部分所述，我们用多头注意力抵消了这种影响． % TODO
 
 % Self-attention, sometimes called intra-attention is an attention mechanism relating different positions of a single sequence in order to compute a representation of the sequence. Self-attention has been used successfully in a variety of tasks including reading comprehension, abstractive summarization, textual entailment and learning task-independent sentence representations \citep{cheng2016long, decomposableAttnModel, paulus2017deep, lin2017structured}.
 
-Self-Attention，有时候被称为Intra-Attention，是在单个句子不同位置上做的Attention，并得到序列的一个表示。它能够很好地应用到很多任务中，包括阅读理解、摘要、文本蕴涵，以及独立于任务的句子表示。\citep{cheng2016long, decomposableAttnModel, paulus2017deep, lin2017structured}
+Self-Attention，有时候被称为Intra-Attention，是在单个句子不同位置上做的Attention，并得到序列的一个表示．它能够很好地应用到很多任务中，包括阅读理解、摘要、文本蕴涵，以及独立于任务的句子表示．\citep{cheng2016long, decomposableAttnModel, paulus2017deep, lin2017structured}
 
 %End-to-end memory networks are based on a recurrent attention mechanism instead of sequence-aligned recurrence and have been shown to perform well on simple-language question answering and language modeling tasks \citep{sukhbaatar2015}.
 
-端到端记忆网络基于循环注意力机制而不是序列对齐循环，并已被证明在简单语言问题回答和语言建模任务中表现良好。\citep{sukhbaatar2015}
+端到端记忆网络基于循环注意力机制而不是序列对齐循环，并已被证明在简单语言问题回答和语言建模任务中表现良好．\citep{sukhbaatar2015}
 
 %To the best of our knowledge, however, the Transformer is the first transduction model relying entirely on self-attention to compute representations of its input and output without using sequence-aligned RNNs or convolution.
 
-然而，据我们所知，Transformer是第一个完全依靠自我注意力机制来计算其输入和输出的表示而不使用序列对齐的RNN或卷积的转换模型。
+然而，据我们所知，Transformer是第一个完全依靠自我注意力机制来计算其输入和输出的表示而不使用序列对齐的RNN或卷积的转换模型．
 
 %In the following sections, we will describe the Transformer, motivate self-attention and discuss its advantages over models such as \citep{neural_gpu, NalBytenet2017} and \citep{JonasFaceNet2017}.
 
-在接下来的章节中，我们将描述Transformer和自我注意力机制，并讨论Transformer相对诸如\citep{neural_gpu, NalBytenet2017}和 \citep{JonasFaceNet2017}等模型的优势。
+在接下来的章节中，我们将描述Transformer和自我注意力机制，并讨论Transformer相对诸如\citep{neural_gpu, NalBytenet2017}和 \citep{JonasFaceNet2017}等模型的优势．
 
 %\citep{JonasFaceNet2017} report new SOTA on machine translation for English-to-German (EnDe), Enlish-to-French (EnFr) and English-to-Romanian language pairs. 
 

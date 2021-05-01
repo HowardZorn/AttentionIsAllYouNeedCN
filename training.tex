@@ -6,19 +6,19 @@
 
 \subsection{训练数据和分批方案}
 %We trained on the standard WMT 2014 English-German dataset consisting of about 4.5 million sentence pairs.  Sentences were encoded using byte-pair encoding \citep{DBLP:journals/corr/BritzGLL17}, which has a shared source-target vocabulary of about 37000 tokens. For English-French, we used the significantly larger WMT 2014 English-French dataset consisting of 36M sentences and split tokens into a 32000 word-piece vocabulary \citep{wu2016google}.  Sentence pairs were batched together by approximate sequence length.  Each training batch contained a set of sentence pairs containing approximately 25000 source tokens and 25000 target tokens. 
-我们在由大约450万个句子对组成的标准WMT 2014英译德数据集上进行训练。 句子使用字节对编码\citep{DBLP:journals/corr/BritzGLL17}，它有一个共享的源-目标词汇约37000个标记。对于英译法，我们使用了明显更大的WMT 2014英译法数据集，该数据集由3600万个句子组成，并将标记拆分为32000个词片（word-piece）\citep{wu2016google}。 句子对按近似的序列长度被分到一起。 每个训练批次包含一组句子对，其中包含大约25000个源标记和25000个目标标记。  
+我们在由大约450万个句子对组成的标准WMT 2014英译德数据集上进行训练． 句子使用字节对编码\citep{DBLP:journals/corr/BritzGLL17}，它有一个共享的源-目标词汇约37000个标记．对于英译法，我们使用了明显更大的WMT 2014英译法数据集，该数据集由3600万个句子组成，并将标记拆分为32000个词片（word-piece）\citep{wu2016google}． 句子对按近似的序列长度被分到一起． 每个训练批次包含一组句子对，其中包含大约25000个源标记和25000个目标标记．  
 
 \subsection{硬件和时间安排}
 
 %We trained our models on one machine with 8 NVIDIA P100 GPUs.  For our base models using the hyperparameters described throughout the paper, each training step took about 0.4 seconds.  We trained the base models for a total of 100,000 steps or 12 hours.  For our big models,(described on the bottom line of table \ref{tab:variations}), step time was 1.0 seconds.  The big models were trained for 300,000 steps (3.5 days).
 
-我们在一台有8个NVIDIA P100 GPU的机器上训练我们的模型。 对于我们的基础模型，使用本文所述的超参数，每个训练步骤大约需要0.4秒。 我们总共训练了100,000步或12小时的基础模型。 对于我们的大模型，（在表\ref{tab:variations}的最后一行描述），一步的时间为1.0秒。 大模型训练了30万步（3.5天）。
+我们在一台有8个NVIDIA P100 GPU的机器上训练我们的模型． 对于我们的基础模型，使用本文所述的超参数，每个训练步骤大约需要0.4秒． 我们总共训练了100,000步或12小时的基础模型． 对于我们的大模型，（在表\ref{tab:variations}的最后一行描述），一步的时间为1.0秒． 大模型训练了30万步（3.5天）．
 
 \subsection{优化器} 
 
 %We used the Adam optimizer~\citep{kingma2014adam} with $\beta_1=0.9$, $\beta_2=0.98$ and $\epsilon=10^{-9}$.  We varied the learning rate over the course of training, according to the formula:
 
-我们使用Adam优化器~\citep{kingma2014adam}，参数为$\beta_1=0.9$，$\beta_2=0.98$，$\epsilon=10^{-9}$。我们在训练过程中更变学习率，如下式：
+我们使用Adam优化器~\citep{kingma2014adam}，参数为$\beta_1=0.9$，$\beta_2=0.98$，$\epsilon=10^{-9}$．我们在训练过程中更变学习率，如下式：
 
 \begin{equation}
 lrate = \dmodel^{-0.5} \cdot
@@ -28,14 +28,14 @@ lrate = \dmodel^{-0.5} \cdot
 
 %This corresponds to increasing the learning rate linearly for the first $warmup\_steps$ training steps, and decreasing it thereafter proportionally to the inverse square root of the step number.  We used $warmup\_steps=4000$.
 
-这相当于在第一个$warmup\_steps$训练步骤中线性增加学习率，然后按步数的反平方根比例递减。我们设定$warmup\_steps=4000$。
+这相当于在第一个$warmup\_steps$训练步骤中线性增加学习率，然后按步数的反平方根比例递减．我们设定$warmup\_steps=4000$．
 
 \subsection{正规化} \label{sec:reg}
 
 %We employ three types of regularization during training: 
 %\paragraph{Residual Dropout} We apply dropout \citep{srivastava2014dropout} to the output of each sub-layer, before it is added to the sub-layer input and normalized.   In addition, we apply dropout to the sums of the embeddings and the positional encodings in both the encoder and decoder stacks.  For the base model, we use a rate of $P_{drop}=0.1$.
-我们在训练过程中采用了三种类型的正则化。
-\paragraph{残差和Dropout} 在每个子层的输出被添加到子层的输入中并被规范化之前，我们对每个子层的输出应用了dropout\citep{srivastava2014dropout}。此外，我们还对编码器和解码器堆中的嵌入和位置编码的总和应用了dropout。 对于基础模型，我们使用$P_{drop}=0.1$的比率。
+我们在训练过程中采用了三种类型的正则化．
+\paragraph{残差和Dropout} 在每个子层的输出被添加到子层的输入中并被规范化之前，我们对每个子层的输出应用了dropout\citep{srivastava2014dropout}．此外，我们还对编码器和解码器堆中的嵌入和位置编码的总和应用了dropout． 对于基础模型，我们使用$P_{drop}=0.1$的比率．
 
 % \paragraph{Attention Dropout} Query to key attentions are structurally similar to hidden-to-hidden weights in a feed-forward network, albeit across positions. The softmax activations yielding attention weights can then be seen as the analogue of hidden layer activations. A natural possibility is to extend dropout \citep{srivastava2014dropout} to attention. We implement attention dropout by dropping out attention weights as,
 % \begin{equation*}
@@ -54,4 +54,4 @@ lrate = \dmodel^{-0.5} \cdot
 
 %%\paragraph{Label Smoothing} During training, we employed label smoothing of value $\epsilon_{ls}=0.1$ \citep{DBLP:journals/corr/SzegedyVISW15}.  This hurts perplexity, as the model learns to be more unsure, but improves accuracy and BLEU score.
 
-\paragraph{标签平滑} 在训练中，我们采用了标签平滑，$epsilon_{ls}=0.1$\citep{DBLP:journals/corr/SzegedyVISW15}。 这损害了迷惑度，因为模型更加不确定，但提高了准确性和BLEU得分。
+\paragraph{标签平滑} 在训练中，我们采用了标签平滑，$epsilon_{ls}=0.1$\citep{DBLP:journals/corr/SzegedyVISW15}． 这损害了迷惑度，因为模型更加不确定，但提高了准确性和BLEU得分．

@@ -1,28 +1,28 @@
 % Recurrent neural networks, long short-term memory \citep{hochreiter1997} and gated recurrent \citep{gruEval14} neural networks in particular, have been firmly established as state of the art approaches in sequence modeling and transduction problems such as language modeling and machine translation \citep{sutskever14, bahdanau2014neural, cho2014learning}. Numerous efforts have since continued to push the boundaries of recurrent language models and encoder-decoder architectures \citep{wu2016google,luong2015effective,jozefowicz2016exploring}.
 
-循环神经网络，特别是长短期记忆（LSTM）\citep{hochreiter1997}和门控循环（GRU）\citep{gruEval14}神经网络，已经被牢固地确立为语言建模和机器翻译等序列建模和转换问题的最先进方法\citep{sutskever14, bahdanau2014neural, cho2014learning}。此后，众多的努力不断拓宽着循环神经网络语言模型和编码器-解码器架构的边界\citep{wu2016google,luong2015effective,jozefowicz2016exploring}。
+循环神经网络，特别是长短期记忆（LSTM）\citep{hochreiter1997}和门控循环（GRU）\citep{gruEval14}神经网络，已经被牢固地确立为语言建模和机器翻译等序列建模和转换问题的最先进方法\citep{sutskever14, bahdanau2014neural, cho2014learning}．此后，众多的努力不断拓宽着循环神经网络语言模型和编码器-解码器架构的边界\citep{wu2016google,luong2015effective,jozefowicz2016exploring}．
 
 % Recurrent models typically factor computation along the symbol positions of the input and output sequences. Aligning the positions to steps in computation time, they generate a sequence of hidden states $h_t$, as a function of the previous hidden state $h_{t-1}$ and the input for position $t$. This inherently sequential nature precludes parallelization within training examples, which becomes critical at longer sequence lengths, as memory constraints limit batching across examples.
 %\marginpar{not sure if the memory constraints are understandable here}
 
-RNN模型通常按输入和输出序列的符号顺序进行参数计算。在计算时，将这些位置与步长对齐，生成一个隐藏状态$h_t$的序列，作为前一个隐藏状态$h_{t-1}$和在位置$t$的输入的函数。这种固有的串行性排除了训练实例的并行化，这在较长的序列长度上变得很致命，因为内存约束限制了实例间的批处理。
+RNN模型通常按输入和输出序列的符号顺序进行参数计算．在计算时，将这些位置与步长对齐，生成一个隐藏状态$h_t$的序列，作为前一个隐藏状态$h_{t-1}$和在位置$t$的输入的函数．这种固有的串行性排除了训练实例的并行化，这在较长的序列长度上变得很致命，因为内存约束限制了实例间的批处理．
 
 % Recent work has achieved significant improvements in computational efficiency through factorization tricks \citep{Kuchaiev2017Factorization} and conditional computation \citep{shazeer2017outrageously}, while also improving model performance in case of the latter. The fundamental constraint of sequential computation, however, remains.
 
-最近的工作通过因式化技巧\citep{Kuchaiev2017Factorization}和条件计算\citep{shazeer2017outrageously}实现了计算效率的显著提高，同时也提高了后者情况下的模型性能。然而，串行计算的基本约束仍然存在。
+最近的工作通过因式化技巧\citep{Kuchaiev2017Factorization}和条件计算\citep{shazeer2017outrageously}实现了计算效率的显著提高，同时也提高了后者情况下的模型性能．然而，串行计算的基本约束仍然存在．
 
 %\marginpar{@all: there is work on analyzing what attention really does in seq2seq models, couldn't find it right away} 
 
 % Attention mechanisms have become an integral part of compelling sequence modeling and transduction models in various tasks, allowing modeling of dependencies without regard to their distance in the input or output sequences \citep{bahdanau2014neural, structuredAttentionNetworks}. In all but a few cases \citep{decomposableAttnModel}, however, such attention mechanisms are used in conjunction with a recurrent network.
 
-注意机制已经成为各种任务中引人注目的序列建模和转导模型的一个组成部分，允许对依赖关系进行建模，而不考虑它们在输入或输出序列中的距离\citep{bahdanau2014neural, structuredAttentionNetworks}。然而，除了少数情况外，\citep{decomposableAttnModel}，这种注意力机制都是与RNN一起使用的。
+注意机制已经成为各种任务中引人注目的序列建模和转导模型的一个组成部分，允许对依赖关系进行建模，而不考虑它们在输入或输出序列中的距离\citep{bahdanau2014neural, structuredAttentionNetworks}．然而，除了少数情况外，\citep{decomposableAttnModel}，这种注意力机制都是与RNN一起使用的．
 
 %\marginpar{not sure if "cross-positional communication" is understandable without explanation}
 %\marginpar{insert exact training times and stats for the model that reaches sota earliest, maybe even a single GPU model?}
 
 % In this work we propose the Transformer, a model architecture eschewing recurrence and instead relying entirely on an attention mechanism to draw global dependencies between input and output. The Transformer allows for significantly more parallelization and can reach a new state of the art in translation quality after being trained for as little as twelve hours on eight P100 GPUs. 
 
-在这项工作中，我们提出了Transformer模型，一个完全摒弃了RNN的模型架构，完全依靠注意力机制来编排输入和输出之间的全局依赖关系。Transformer更加并行，并且在8个P100 GPU上训练12小时后，就可以让翻译质量达到一个新的水平。
+在这项工作中，我们提出了Transformer模型，一个完全摒弃了RNN的模型架构，完全依靠注意力机制来编排输入和输出之间的全局依赖关系．Transformer更加并行，并且在8个P100 GPU上训练12小时后，就可以让翻译质量达到一个新的水平．
 
 %\marginpar{you removed the constant number of repetitions part. I wrote it because I wanted to make it clear that the model does not only perform attention once, while it's also not recurrent. I thought that might be important to get across early.}
 
